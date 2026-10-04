@@ -47,6 +47,10 @@ public class Main {
         while (running) {
             printMenu();
             System.out.print("Select an option (1-7): ");
+            if (!scanner.hasNextLine()) {
+                System.out.println("No interactive input available. Continuing in web-only mode.");
+                break;
+            }
             String input = scanner.nextLine().trim();
 
             switch (input) {
