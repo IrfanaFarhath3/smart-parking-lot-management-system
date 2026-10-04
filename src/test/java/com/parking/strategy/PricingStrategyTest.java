@@ -55,4 +55,30 @@ class PricingStrategyTest {
         double fee = strategy.calculateFee(ticket, truck, exit);
         assertEquals(60.0, fee, 0.001);
     }
+
+    @Test
+    @DisplayName("Test null ticket or exit time throws IllegalArgumentException")
+    void testNullInputs() {
+        LocalDateTime exit = LocalDateTime.now();
+        Ticket ticket = new Ticket("T4", "CAR-400", VehicleType.CAR, "C-01", LocalDateTime.now(), null, 0.0, false);
+
+        assertThrows(IllegalArgumentException.class, () -> strategy.calculateFee(null, new Car("C1"), exit));
+        assertThrows(IllegalArgumentException.class, () -> strategy.calculateFee(ticket, new Car("C1"), null));
+    }
+
+    @Test
+    @DisplayName("Test exit time before entry time throws IllegalArgumentException")
+    void testExitBeforeEntry() {
+        LocalDateTime entry = LocalDateTime.of(2026, 10, 3, 12, 0);
+        LocalDateTime exit = LocalDateTime.of(2026, 10, 3, 10, 0);
+        Ticket ticket = new Ticket("T5", "CAR-500", VehicleType.CAR, "C-01", entry, null, 0.0, false);
+
+        assertThrows(IllegalArgumentException.class, () -> strategy.calculateFee(ticket, new Car("CAR-500"), exit));
+    }
+
+    @Test
+    @DisplayName("Test negative base rate throws IllegalArgumentException")
+    void testNegativeBaseRate() {
+        assertThrows(IllegalArgumentException.class, () -> new HourlyPricingStrategy(-5.0));
+    }
 }

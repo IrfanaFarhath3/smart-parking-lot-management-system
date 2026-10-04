@@ -16,7 +16,7 @@ class ParkingLotServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Use unique file or memory DB for testing
+        // Use test DB for testing
         DatabaseManager.setDbUrl("jdbc:sqlite:target/test_parking_lot.db");
         DatabaseManager.initializeDatabase();
         service = new ParkingLotService();
@@ -75,5 +75,30 @@ class ParkingLotServiceTest {
         service.parkVehicle(car3);
 
         assertThrows(IllegalStateException.class, () -> service.parkVehicle(car4));
+    }
+
+    @Test
+    @DisplayName("Test parking null vehicle throws IllegalArgumentException")
+    void testParkNullVehicle() {
+        assertThrows(IllegalArgumentException.class, () -> service.parkVehicle(null));
+    }
+
+    @Test
+    @DisplayName("Test unparking non-existent ticket throws IllegalArgumentException")
+    void testUnparkNonExistentTicket() {
+        assertThrows(IllegalArgumentException.class, () -> service.unparkVehicle("INVALID-TKT"));
+        assertThrows(IllegalArgumentException.class, () -> service.unparkVehicle(null));
+        assertThrows(IllegalArgumentException.class, () -> service.unparkVehicle("   "));
+    }
+
+    @Test
+    @DisplayName("Test unparking an already paid ticket throws IllegalStateException")
+    void testUnparkAlreadyPaidTicket() {
+        Vehicle car = new Car("KA-02-1111");
+        Ticket ticket = service.parkVehicle(car);
+
+        service.unparkVehicle(ticket.getTicketId());
+
+        assertThrows(IllegalStateException.class, () -> service.unparkVehicle(ticket.getTicketId()));
     }
 }

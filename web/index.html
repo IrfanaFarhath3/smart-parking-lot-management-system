@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Lot - Visual Management Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="logo-icon">🅿️</div>
+                <div>
+                    <h1>Smart Parking System</h1>
+                    <span class="subtext">Interactive Real-Time Dashboard</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="btn-quick-park" class="btn btn-primary">+ Park Vehicle</button>
+                <button id="btn-reset-lot" class="btn btn-secondary">🔄 Reset Layout</button>
+            </div>
+        </header>
+
+        <!-- Stats Overview Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon total-icon">🏗️</div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Capacity</span>
+                    <h2 id="stat-total">20</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon occupied-icon">🚗</div>
+                <div class="stat-info">
+                    <span class="stat-label">Occupied Spots</span>
+                    <h2 id="stat-occupied">0</h2>
+                </div>
+                <div class="occupancy-bar-bg">
+                    <div id="occupancy-bar" class="occupancy-bar-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon vacant-icon">🟢</div>
+                <div class="stat-info">
+                    <span class="stat-label">Vacant Spots</span>
+                    <h2 id="stat-vacant">20</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon revenue-icon">💰</div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Revenue</span>
+                    <h2 id="stat-revenue">$0.00</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Split View -->
+        <main class="dashboard-main">
+            <!-- Parking Lot Visual Grid Map -->
+            <section class="lot-map-section">
+                <div class="section-header">
+                    <h2>Parking Lot Visual Layout</h2>
+                    <div class="legend">
+                        <span class="legend-item"><span class="dot vacant-dot"></span> Vacant</span>
+                        <span class="legend-item"><span class="dot occupied-dot"></span> Occupied</span>
+                    </div>
+                </div>
+
+                <!-- Zone Filters -->
+                <div class="zone-tabs">
+                    <button class="tab-btn active" data-zone="all">All Zones</button>
+                    <button class="tab-btn" data-zone="bike">🏍️ Bike Zone (B)</button>
+                    <button class="tab-btn" data-zone="compact">🚗 Compact Zone (C)</button>
+                    <button class="tab-btn" data-zone="large">🚛 Large Zone (L)</button>
+                </div>
+
+                <!-- Parking Spot Grid -->
+                <div id="slots-grid" class="slots-grid">
+                    <!-- Dynamic slots will render here -->
+                </div>
+            </section>
+
+            <!-- Side Panel: Park Vehicle & Active Sessions -->
+            <aside class="side-panel">
+                <div class="card panel-card">
+                    <h3>🚗 Park a Vehicle</h3>
+                    <form id="park-form" class="park-form">
+                        <div class="form-group">
+                            <label for="license-input">License Plate Number</label>
+                            <input type="text" id="license-input" placeholder="e.g. MH-12-AB-1234" required autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Vehicle Type</label>
+                            <div class="vehicle-type-selector">
+                                <label class="type-option">
+                                    <input type="radio" name="vehicle-type" value="BIKE" checked>
+                                    <span class="type-box">
+                                        <span class="type-icon">🏍️</span>
+                                        <span class="type-title">Bike</span>
+                                        <span class="type-rate">0.5x Rate</span>
+                                    </span>
+                                </label>
+
+                                <label class="type-option">
+                                    <input type="radio" name="vehicle-type" value="CAR">
+                                    <span class="type-box">
+                                        <span class="type-icon">🚗</span>
+                                        <span class="type-title">Car</span>
+                                        <span class="type-rate">1.0x Rate</span>
+                                    </span>
+                                </label>
+
+                                <label class="type-option">
+                                    <input type="radio" name="vehicle-type" value="TRUCK">
+                                    <span class="type-box">
+                                        <span class="type-icon">🚛</span>
+                                        <span class="type-title">Truck</span>
+                                        <span class="type-rate">2.0x Rate</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Issue Ticket & Park</button>
+                    </form>
+                </div>
+
+                <!-- Quick Active Parking Log -->
+                <div class="card panel-card">
+                    <h3>🎫 Active Parking Tickets</h3>
+                    <div id="active-tickets-list" class="active-tickets-list">
+                        <!-- Active tickets render here -->
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Transaction History Table -->
+        <section class="history-section">
+            <div class="section-header">
+                <h2>Parking Session History</h2>
+            </div>
+            <div class="table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>License Plate</th>
+                            <th>Vehicle Type</th>
+                            <th>Slot</th>
+                            <th>Entry Time</th>
+                            <th>Exit Time</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <!-- History rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>💳 Vehicle Checkout & Receipt</h3>
+                <button id="modal-close" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="receipt">
+                    <div class="receipt-header">
+                        <h4>SMART PARKING RECEIPT</h4>
+                        <p id="rec-ticket-id" class="receipt-id">TKT-XXXXXX</p>
+                    </div>
+                    <hr class="receipt-divider">
+                    <div class="receipt-row">
+                        <span>License Plate:</span>
+                        <strong id="rec-license">--</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Vehicle Category:</span>
+                        <strong id="rec-type">--</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Slot Vacated:</span>
+                        <strong id="rec-slot">--</strong>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Entry Timestamp:</span>
+                        <span id="rec-entry">--</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Exit Timestamp:</span>
+                        <span id="rec-exit">--</span>
+                    </div>
+                    <div class="receipt-row">
+                        <span>Simulated Duration:</span>
+                        <strong id="rec-duration">1 hour(s)</strong>
+                    </div>
+                    <hr class="receipt-divider">
+                    <div class="duration-slider-group">
+                        <label for="sim-hours">Simulate Hours Parked: <strong id="sim-hours-val">1 hr</strong></label>
+                        <input type="range" id="sim-hours" min="1" max="24" value="1">
+                    </div>
+                    <hr class="receipt-divider">
+                    <div class="receipt-row total-row">
+                        <span>TOTAL FEE:</span>
+                        <span id="rec-fee" class="total-price">$10.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirm-checkout" class="btn btn-success btn-full">Confirm Payment & Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

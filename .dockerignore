@@ -1,0 +1,11 @@
+.git
+.vscode
+apache-maven-3.9.9
+apache-maven-3.9.9-bin.zip
+
+target/test-classes
+target/generated-sources
+target/generated-test-sources
+target/maven-status
+target/surefire-reports
+dependency-reduced-pom.xml

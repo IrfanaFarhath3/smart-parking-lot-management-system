@@ -3,6 +3,7 @@ package com.parking;
 import com.parking.db.DatabaseManager;
 import com.parking.model.*;
 import com.parking.service.ParkingLotService;
+import com.parking.web.WebServer;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Main application class providing an interactive terminal CLI for the Smart Parking Lot Management System.
+ * Main application class launching both the Embedded Web REST Server and the interactive CLI Console.
  */
 public class Main {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -25,12 +26,23 @@ public class Main {
             parkingService.setupParkingLot(5, 10, 5); // 5 Bike, 10 Compact, 5 Large
         }
 
+        // Step 2: Start Embedded Web REST API Server on PORT env var (default 8080)
+        WebServer webServer = null;
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
+        try {
+            webServer = new WebServer(port, parkingService);
+            webServer.start();
+        } catch (Exception e) {
+            System.err.println("⚠️ Warning: Could not start Embedded Web Server on port " + port + ": " + e.getMessage());
+        }
+
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         System.out.println("=================================================");
         System.out.println("   WELCOME TO SMART PARKING LOT MANAGEMENT SYSTEM ");
         System.out.println("=================================================");
+        System.out.println("🌐 Visual Web UI live at: http://localhost:" + port + " (0.0.0.0:" + port + ")");
 
         while (running) {
             printMenu();
@@ -46,7 +58,11 @@ public class Main {
                 case "6" -> handleReconfigureLot(scanner, parkingService);
                 case "7" -> {
                     running = false;
-                    System.out.println("\nThank you for using Smart Parking System. Goodbye!");
+                    System.out.println("\nStopping Web Server and exiting system...");
+                    if (webServer != null) {
+                        webServer.stop();
+                    }
+                    System.out.println("Goodbye!");
                 }
                 default -> System.out.println("\n❌ Invalid choice! Please select a number between 1 and 7.");
             }
@@ -119,7 +135,6 @@ public class Main {
         }
 
         String ticketId = query;
-        // If user entered license plate instead of ticket ID, find active ticket
         if (!query.toUpperCase().startsWith("TKT-")) {
             var activeTicketOpt = service.getActiveTickets().stream()
                     .filter(t -> t.getLicensePlate().equalsIgnoreCase(query))
